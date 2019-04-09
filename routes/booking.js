@@ -156,6 +156,19 @@ module.exports = function(app) {
       }
     });
   });
+  //delete booking slot 
+  app.delete('/api/place/:id/intervals',function(req,res){
+    var id = parseInt(req.params.id);
+  Interval.deleteOne({place:id},function(err,deleted){
+    if(err) {
+      res.status(500);
+    res.json({message:"Not deleted"});
+    }else{
+      res.json({message:"deleted"});
+    }
+  })
+
+  });
 
   // Create the Booking Intervals entity
   app.post('/api/place/:id/intervals', function (req, res) {
@@ -265,6 +278,7 @@ module.exports = function(app) {
         } else {
           newBooking.startTime = interval.intervals[intervalNum]['start'];
           newBooking.endTime = interval.intervals[intervalNum]['end'];
+          newBooking.slot = interval.intervals[intervalNum]['slot'];
 
           Booking.findOne({
             place: id,
@@ -287,7 +301,7 @@ module.exports = function(app) {
                   if (!place) {
                     res.json({message: "No such place"});
                   } else {
-                    if (books.length >= place.slots) {
+                    if (books.length >= newBooking.slot) {
                       res.status(500);
                       res.json({message: "Sorry, all slots are booked for this time"});
                     } else {

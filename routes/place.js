@@ -17,7 +17,7 @@ db.getInstance(function (p_db) {
 module.exports = function (app) {
 
   // New Place
-  app.post('/api/place', middleware.isAdmin, function (req, res) {
+  app.post('/api/place', function (req, res) {
 
     var place = {};
     place.name = req.body.name;
@@ -44,7 +44,6 @@ module.exports = function (app) {
     place.bookings = [];
     place.offers = [];
     place.posts = [];
-
     // Make all fields required
     if (!place.name || !place.type || !place.address || !place.photos || !place.location.coordinates ||
       !place.level || !place.description || !place.schedule || !place.slots) {
@@ -78,7 +77,7 @@ module.exports = function (app) {
 
     Place.findOne({ _id: id }, function (err, place) {
       intervaldata.then(function (value) {
-        // let intervalScopData = value.intervals;   
+       
         });
       err && console.log(err);
       if (!place) {
@@ -186,6 +185,7 @@ module.exports = function (app) {
   // Get all Places
   app.get('/api/place', function (req, res) {
     Place.find({}, { projection: { client: 0 } }).toArray(async function (err, places) {
+      console.log(":places",places)
       getMoreData(places, res);
     });
   });
@@ -208,19 +208,20 @@ module.exports = function (app) {
 };
 
 async function getMoreData(places, res) {
+  // console.log(places)
   var full = await Promise.all(places.map(async function (place) {
     var interval = await Interval.findOne({ place: place._id });
     var books = await Booking.find({ place: place._id, closed: false }).toArray();
     var offers = await Offer.find({ place: place._id, closed: false }).toArray();
-
+      console.log("hello",interval)
     place.minOffer = null;
     if (offers.length !== 0) {
       place.minOffer = offers[0]['price'];
     }
     if (interval) {
-      for (var i = 0; i < interval.intervals.length; i++) {
-        interval.intervals[i].slot = place.slots;
-      }
+      // for (var i = 0; i < interval.intervals.length; i++) {
+      //   interval.intervals[i].slot = place.slots;
+      // }
       place.intervals = interval.intervals;
 
     }
@@ -232,18 +233,18 @@ async function getMoreData(places, res) {
 }
 async function getIntervalData(place, res) {
 
-  var interval = await Interval.findOne({ place: 29 });
+  var interval = await Interval.findOne({ place: place });
   console.log(interval)
 
 
   if (interval) {
-    for (var i = 0; i < interval.intervals.length; i++) {
-      interval.intervals[i].slot = place.slots;
-    }
+    // for (var i = 0; i < interval.intervals.length; i++) {
+    //   interval.intervals[i].slot = place.slots;
+    // }
     place.intervals = interval.intervals;
 
   }
 
   return interval;
-  // res.json(full);
+  res.json(full);
 }
