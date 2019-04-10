@@ -327,13 +327,14 @@ module.exports = function(app) {
       }
 
       Interval.findOne({place: id}, function (err, interval) {
+        console.log(interval.intervals[intervalNum])
         if (!interval) {
           res.status(500);
           res.json({message: "No intervals for this place"});
         } else {
-          newBooking.startTime = interval.intervals[intervalNum]['start'];
-          newBooking.endTime = interval.intervals[intervalNum]['end'];
-          newBooking.slot = interval.intervals[intervalNum]['slot'];
+          newBooking.startTime = interval.intervals[intervalNum]["start"];
+          newBooking.endTime = interval.intervals[intervalNum]["end"];
+          newBooking.slot = interval.intervals[intervalNum]["slot"];
 
           Booking.findOne({
             place: id,
